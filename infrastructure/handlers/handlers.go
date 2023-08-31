@@ -15,6 +15,7 @@ type Routers struct {
 	updateUsers usecases.UpdateUsersExecutor
 	login       usecases.LoginExecutor
 	getUsers    usecases.GetUsersExecutor
+	pokemos     usecases.PokemonExecutor
 }
 
 func NewRouters(app *rest.Server,
@@ -22,6 +23,7 @@ func NewRouters(app *rest.Server,
 	login usecases.LoginExecutor,
 	updateUsers usecases.UpdateUsersExecutor,
 	getUsers usecases.GetUsersExecutor,
+	pokemos usecases.PokemonExecutor,
 ) Routers {
 	return Routers{
 		app:         app.App,
@@ -29,6 +31,7 @@ func NewRouters(app *rest.Server,
 		updateUsers: updateUsers,
 		login:       login,
 		getUsers:    getUsers,
+		pokemos:     pokemos,
 	}
 }
 
@@ -99,10 +102,50 @@ func (r *Routers) GetUsers() {
 	})
 }
 
+func (r *Routers) GetPokemons() {
+	r.app.Get("pokemons", func(ctx *fiber.Ctx) error {
+		p, err := r.pokemos.GetPokemons(ctx.Context())
+		if err != nil {
+			return err
+		}
+		b, err := json.Marshal(p)
+		if err != nil {
+			return err
+		}
+		return ctx.Status(200).Send(b)
+
+	})
+}
+
+func (r *Routers) GetPokemon() {
+	r.app.Post("pokemon", func(ctx *fiber.Ctx) error {
+
+		req := entities.Req{}
+
+		err := json.Unmarshal(ctx.Body(), &req)
+		if err != nil {
+			return err
+		}
+
+		p, err := r.pokemos.GetPokemon(ctx.Context(), req.Url)
+		if err != nil {
+			return err
+		}
+		b, err := json.Marshal(p)
+		if err != nil {
+			return err
+		}
+		return ctx.Status(200).Send(b)
+
+	})
+}
+
 func (r *Routers) Start() error {
 	r.CreateUsers()
 	r.UpdateUsers()
 	r.GetUsers()
+	r.GetPokemons()
+	r.GetPokemon()
 	r.Login()
 	return r.app.Listen(":3000")
 }

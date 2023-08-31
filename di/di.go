@@ -3,13 +3,14 @@ package di
 import (
 	"pokeapi/infrastructure/handlers"
 	"pokeapi/infrastructure/rest"
+	resty2 "pokeapi/infrastructure/resty"
 	"pokeapi/infrastructure/storage"
 	"pokeapi/usecases"
 )
 
 func Start() error {
 	server := rest.NewServer()
-	str := "tpr77y14irv178s44t8u:pscale_pw_xiKe5hNoHKpGGtBJxY5i8q4adQmPMjr8GYPt9Uq8MdK@tcp(aws.connect.psdb.cloud)/test?tls=true&interpolateParams=true"
+	str := ""
 
 	persistence, err := storage.NewConnectionStorage(str)
 	if err != nil {
@@ -19,8 +20,10 @@ func Start() error {
 	login := usecases.NewLogin(persistence)
 	updateUsers := usecases.NewUpdateUsers(persistence)
 	getUsers := usecases.NewGetUsers(persistence)
+	resty := resty2.NewPokemon()
+	pokes := usecases.NewPokemon(resty)
 
-	routers := handlers.NewRouters(server, createUsers, login, updateUsers, getUsers)
+	routers := handlers.NewRouters(server, createUsers, login, updateUsers, getUsers, pokes)
 
 	return routers.Start()
 }
