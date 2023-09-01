@@ -1,0 +1,9 @@
+version: "3"
+services:
+  app:
+    image: api_poke_go_image
+    container_name: api_poke_go_container
+    build: ./
+    restart: always
+    ports:
+      - "3000:3000"

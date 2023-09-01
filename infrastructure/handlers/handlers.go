@@ -9,7 +9,7 @@ import (
 	"pokeapi/usecases"
 )
 
-type Routers struct {
+type Handler struct {
 	app         *fiber.App
 	createUsers usecases.CreateUsersExecutor
 	updateUsers usecases.UpdateUsersExecutor
@@ -18,14 +18,14 @@ type Routers struct {
 	pokemos     usecases.PokemonExecutor
 }
 
-func NewRouters(app *rest.Server,
+func NewHandler(app *rest.Server,
 	createUsers usecases.CreateUsersExecutor,
 	login usecases.LoginExecutor,
 	updateUsers usecases.UpdateUsersExecutor,
 	getUsers usecases.GetUsersExecutor,
 	pokemos usecases.PokemonExecutor,
-) Routers {
-	return Routers{
+) Handler {
+	return Handler{
 		app:         app.App,
 		createUsers: createUsers,
 		updateUsers: updateUsers,
@@ -35,7 +35,7 @@ func NewRouters(app *rest.Server,
 	}
 }
 
-func (r *Routers) CreateUsers() {
+func (r *Handler) CreateUsers() {
 	r.app.Post("Users", func(ctx *fiber.Ctx) error {
 		users := entities.Users{}
 
@@ -48,7 +48,7 @@ func (r *Routers) CreateUsers() {
 	})
 }
 
-func (r *Routers) Login() {
+func (r *Handler) Login() {
 	r.app.Post("Login", func(ctx *fiber.Ctx) error {
 		users := entities.Users{}
 
@@ -73,7 +73,7 @@ func (r *Routers) Login() {
 	})
 }
 
-func (r *Routers) UpdateUsers() {
+func (r *Handler) UpdateUsers() {
 	r.app.Put("Users", func(ctx *fiber.Ctx) error {
 		users := entities.Users{}
 
@@ -86,7 +86,7 @@ func (r *Routers) UpdateUsers() {
 	})
 }
 
-func (r *Routers) GetUsers() {
+func (r *Handler) GetUsers() {
 	r.app.Get("User/:id", func(ctx *fiber.Ctx) error {
 		id := ctx.Params("id")
 		user, err := r.getUsers.GetUsers(ctx.Context(), id)
@@ -102,7 +102,7 @@ func (r *Routers) GetUsers() {
 	})
 }
 
-func (r *Routers) GetPokemons() {
+func (r *Handler) GetPokemons() {
 	r.app.Get("pokemons", func(ctx *fiber.Ctx) error {
 		p, err := r.pokemos.GetPokemons(ctx.Context())
 		if err != nil {
@@ -117,7 +117,7 @@ func (r *Routers) GetPokemons() {
 	})
 }
 
-func (r *Routers) GetPokemon() {
+func (r *Handler) GetPokemon() {
 	r.app.Post("pokemon", func(ctx *fiber.Ctx) error {
 
 		req := entities.Req{}
@@ -140,7 +140,7 @@ func (r *Routers) GetPokemon() {
 	})
 }
 
-func (r *Routers) Start() error {
+func (r *Handler) Start() error {
 	r.CreateUsers()
 	r.UpdateUsers()
 	r.GetUsers()

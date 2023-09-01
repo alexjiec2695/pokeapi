@@ -23,7 +23,7 @@ func Start() error {
 	resty := resty2.NewPokemon()
 	pokes := usecases.NewPokemon(resty)
 
-	routers := handlers.NewRouters(server, createUsers, login, updateUsers, getUsers, pokes)
+	routers := handlers.NewHandler(server, createUsers, login, updateUsers, getUsers, pokes)
 
 	return routers.Start()
 }
